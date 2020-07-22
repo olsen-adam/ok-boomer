@@ -129,7 +129,7 @@ public class Program extends Canvas implements Runnable{
         bttManager.addButton(bl);
         int tx = 10;
         for (int i  = 0; i < 4; i++) {
-            int ty = 120+60*i;
+            int ty = 90+50*i;
             BttID bid = TextStart, Iid = TextStart;
             switch (i){
                 case 0: bid = ToggleRedund; Iid = InfoRedund; break;
@@ -140,7 +140,7 @@ public class Program extends Canvas implements Runnable{
             bttManager.addButton(new ButtonToggle(WIDTH-sbx+tx, ty, bid,grid,mouseIn));
             bttManager.addButton(new ButtonInfo(WIDTH-sbx+tx+300, ty-4, Iid,grid,mouseIn));
         }
-        ButtonBar b = new ButtonBar(WIDTH-sbx+120,370,TextLoadMap,grid,mouseIn);
+        ButtonBar b = new ButtonBar(WIDTH-sbx+120,290,TextLoadMap,grid,mouseIn);
         grid.setButtonBar(b);
         bttManager.addButton(b);
     }

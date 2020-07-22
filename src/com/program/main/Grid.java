@@ -49,6 +49,12 @@ public class Grid {
     private int[] moves;
     //Toggles
     private boolean drawFloor;
+    //Preset maps
+    private int presetOn;
+    private final int numPresets = 3;
+    private String[] presetName;
+    private int[] presetWidth, presetHeight;
+    private String[] presetData;
 
     public Grid(MouseIn imouseIn, Program program) {
         mouseIn = imouseIn;
@@ -87,7 +93,9 @@ public class Grid {
             moves[8] = 2;
             moves[9] = 3;
 
-        initGrid(15,15);
+        initPresets();
+        loadPreset(0);
+        /*initGrid(15,15);
 
         //man!
         //manX = r.nextInt(gridW);
@@ -124,7 +132,7 @@ public class Grid {
                 ii++;
                 //return;
             }
-        }
+        }*/
     }
 
     public void tick() {
@@ -318,6 +326,55 @@ public class Grid {
             for (int ii=0; ii<gridW; ii++) {
                 board[ii][i] = SquareID.Empty;
                 timesVisited[ii][i] = 0;
+            }
+        }
+    }
+
+    private void initPresets() {
+        presetName = new String[numPresets];
+        presetWidth = new int[numPresets];
+        presetHeight = new int[numPresets];
+        presetData = new String[numPresets];
+
+        presetName[0] = "Test Map";
+        presetWidth[0] = 9; presetHeight[0] = 9;
+        presetData[0] = "----------------------x--------x-----m--x--g-----x--------x----------------------";
+
+        presetName[1] = "Maze";
+        presetWidth[1] = 15; presetHeight[1] = 15;
+        presetData[1] = "----x----x-----x-x---x---x-------x--------xxx-x------------------x---x--x-x-----x---g---x------x---x----xx------------x-x------m------x---x-------x-------xx---xx---xx-----xxx------x----------xxx-xx-x-------x----x---x-----x-x-";
+
+        presetName[2] = "Large Grid";
+        presetWidth[2] = 30; presetHeight[2] = 20;
+        presetData[2] = "------------------------------------------------------------------------------------------------------------------g---------------------------------------------------------------------xx-xx----x-------------------------------------------------------------------------------------------------------------xxxxxxxxxxxxxxxxxxxxxxxx---------------------------------------------------------------------------------x-----------------------------------------------------------x-----------------------------x----------------m------------x-----------------------------x-----------------------------------------";
+    }
+
+    public void loadPreset(int preset) {
+        if (running) flipRunning();
+
+        presetOn = preset;
+        initGrid(presetWidth[preset],presetHeight[preset]);
+
+        String line = presetData[preset];
+        for (int i = 0; i < presetHeight[preset]; i++) {
+            for (int ii = 0; ii < presetWidth[preset]; ii++) {
+                char c = line.charAt(ii+i*presetWidth[preset]);
+                switch (c) {
+                    case 'x': board[ii][i] = SquareID.Obstacle;
+                        break;
+                    case 'm': board[ii][i] = SquareID.Man;
+                        manX = ii;
+                        manY = i;
+                        manOrigX = manX;
+                        manOrigY = manY;
+                        break;
+                    case 'g': board[ii][i] = SquareID.Goal;
+                        goalX = ii;
+                        goalY = i;
+                        goalOrigX = goalX;
+                        goalOrigY = goalY;
+                        break;
+                }
             }
         }
     }
@@ -635,13 +692,15 @@ public class Grid {
     public void flipEditingMap() {
         editingMap = !editingMap;
         if (editingMap) {
-            program.setBgCol(Color.darkGray);
+            bgCol = Color.darkGray;
+            program.setBgCol(bgCol);
             lineCol = Color.lightGray;
             if (running) {
                 flipRunning();
             }
         } else {
-            program.setBgCol(Color.white);
+            bgCol = Color.white;
+            program.setBgCol(bgCol);
             lineCol = Color.black;
         }
     }
@@ -706,10 +765,15 @@ public class Grid {
 
     public int getNumMoves() { return numMoves; }
 
+    public int getNumPresets() { return numPresets; }
+
+    public String getPresetName(int preset) { return presetName[preset]; }
+
+    public int getPresetOn() { return presetOn; }
+
     private int approach(int lower, int upper, float progress, float pLower, float pUpper) {
         float percent = (progress-pLower)/(pUpper-pLower);
         int var = (int) (lower+(float)(upper-lower)*percent);
         return var;
     }
 }
-

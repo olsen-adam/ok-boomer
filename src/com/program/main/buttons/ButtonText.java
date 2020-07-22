@@ -22,6 +22,7 @@ public class ButtonText extends ObjButton{
     Font font = new Font("Serif", Font.BOLD, 20);
     private int Ax, Ay, iAw; //START ONLY
     private int yO, h; //LOAD MAP ONLY
+    private int mBWidth, mBHeight, mBConst, mBXConst, mBAdd, numMB; //LOAD MAP ONLY
     private boolean loadMenu;
     private GUIdrawType guiDrawType;
 
@@ -61,12 +62,19 @@ public class ButtonText extends ObjButton{
                 width = 340;
                 height = 30;
                 textOff = 10;
-                yO = 42;
-                h = 540;
                 text = "Load Map";
+
                 loadMenu = false;
-                grid.getGUI().setYoH(yO,h);
-                mapName = "Map 1";
+                mapName = grid.getPresetName(grid.getPresetOn());
+                yO = 34;
+                h = 260;
+                mBWidth = 210;
+                mBHeight = 40;
+                mBConst = 42;
+                mBXConst = 10;
+                mBAdd = mBHeight+10;
+                numMB = grid.getNumPresets()+1;
+                grid.getGUI().setLoadMenuVars(yO,h,mBWidth, mBHeight, mBConst,mBXConst, mBAdd, numMB);
                 break;
         }
     }
@@ -110,16 +118,44 @@ public class ButtonText extends ObjButton{
                 else text = "Map Editor";
                 break;
             case TextLoadMap:
-                /*if (isClicked) {
-                    loadMenu = !loadMenu;
-                } else if (mouseIn.getPressed()) {
-                    int mx = mouseIn.getMouseX();
-                    int my = mouseIn.getMouseY();
-                    if (!(mx > x && mx < x+width &&
-                            my > y && my < y+height))
-                    loadMenu = false;
-                }*/
                 if (grid.getifEditingMap()) {
+                    text = "Save";
+                } else text = "Load Map";
+
+                int mx = mouseIn.getMouseX();
+                int my = mouseIn.getMouseY();
+                if (isClicked) {
+                    loadMenu = !loadMenu;
+                    if (text == "Save") grid.saveFile();
+                } else if (mouseIn.getPressed()) {
+                    if (!(mx > x && mx < x+width &&
+                            my > y && my < y+height)
+                            && !(mx > x && mx < x+width && //
+                                    my > y + yO & my < y + yO + h)) // Not in dropbox
+                    loadMenu = false;
+                }
+                if (mClicked && loadMenu) {
+                    for (int i = 0; i < numMB; i++) {
+                        int yyy = y + mBConst + mBAdd * i;
+                        if (mx > x + mBXConst && mx < x + mBXConst + mBWidth &&
+                                my > yyy && my < yyy + mBHeight) {
+                            if (i == numMB-1)
+                            {
+                                try {
+                                    grid.openFile();
+                                } catch (FileNotFoundException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                grid.loadPreset(i);
+                                mapName = grid.getPresetName(i);
+                            }
+                            loadMenu = false;
+                        }
+                    }
+                }
+
+                /*if (grid.getifEditingMap()) {
                     text = "Save";
                 } else text = "Load Map";
                 if (isClicked) {
@@ -130,7 +166,7 @@ public class ButtonText extends ObjButton{
                             e.printStackTrace();
                         }
                     } else {grid.saveFile();}
-                }
+                }*/
                 break;
         }
     }
