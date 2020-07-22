@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
+#include <string.h>
 
 
 char** maze;
@@ -9,8 +11,11 @@ int rows;
 int cols;
 int start_row;
 int start_col;
+int goal_row;
+int goal_col;
 int testNum;
-int localDirection;
+int localDirection = 69;
+int randomMove;
 
 enum terrain { //declares different parts of the grid
     empty,
@@ -103,6 +108,11 @@ void get_visited() {
                 visited[i][j] = wall;
             } else if (maze[i][j] == 'G') {
                 visited[i][j] = goal;
+                            //printf("Start is at: (%d, %d)\n", start_col, start_row);
+                            // printf("Goal is at: (%d, %d)\n\n", j, i);
+                goal_row = i;
+                goal_col = j;
+
             } else {
                 visited[i][j] = empty;
 
@@ -111,7 +121,7 @@ void get_visited() {
     }
 }
 
-/*int astar (int row, int col) {
+/*
 
 Start = [x1,y1] location
 Goal = [x2,y2] location
@@ -172,7 +182,7 @@ for each legal move m (left, right, up, down ) {
 
    if( g + h <= depth { //Only search if possible to solve problem within the depth constratint
       result = Search( newfrom, to, g+1, depth, m )
-   }
+   }(row, col + 1)
    undo make move
    if( result > 0 ) return( result );
 }
@@ -182,20 +192,27 @@ return( -1 ) // did not find a solution
 }
 */
 
-int dfsStupid(int row, int col) {
+int stupidDfs(int row, int col) {
 
 
     int* current = &visited[row][col];
-    testNum++;
 
     if (*current == goal) {
         return 1;
     }
-    //printf("%d, ",localDirection);
-    if (*current == empty) {
+    if (*current == empty || *current == crumb) { //if current position player is on is empty, it will place a crumb
         *current = crumb;
-    printf("(%d, %d)", row, col);
-        if (dfs(row, col - 1)) {
+
+
+
+    printf("(%d, %d) ", col, row); //This calls the whole coordinates.
+        //Call row and col right here as these are the directions it would take.
+
+
+    testNum++;
+    randomMove = ( rand()%4 );
+
+        if (stupidDfs(row, col - 1) && randomMove == 1) {
             *current = crumb;
             //int localDirection = 0;
 
@@ -204,25 +221,25 @@ int dfsStupid(int row, int col) {
             //printf("%s, ", &current[1]);
             return 1;
         }
-        if (dfs(row, col + 1)) {
+        if (stupidDfs(row - 1, col) && randomMove == 2) {
             *current = crumb;
-            //int localDirection = 1;
+            //int localDirection = 2;
             //printf("(%d, %d)", row, col);
              //looks one right and checks if it is an empty spot, if so place a crumb.
             //printf("%s, ", &current[0]);
             //printf("%s, ", &current[1]);
             return 1;
         }
-        if (dfs(row - 1, col)) {
+        if (stupidDfs(row, col + 1) && randomMove == 3) {
             *current = crumb;
-            //int localDirection = 2;
+            //int localDirection = 1;
            //printf("(%d, %d)", row, col);
              //looks one up and checks if it is an empty spot, if so place a crumb.
             //printf("%s, ", &current[0]);
            // printf("%s, ", &current[1]);
             return 1;
         }
-        if (dfs(row + 1, col)) {
+        if (stupidDfs(row + 1, col) && randomMove == 4) {
             *current = crumb;
             //int localDirection = 3;
             //printf("(%d, %d)", row, col);
@@ -236,6 +253,69 @@ int dfsStupid(int row, int col) {
     return 0;
 }
 
+
+
+
+int dfs(int row, int col) {
+
+
+    int* current = &visited[row][col];
+
+
+    if (*current == goal) {
+        return 1;
+    }
+    //printf("%d, ",localDirection);
+    if (*current == empty) {
+        *current = wall;
+        testNum++;
+
+
+
+    printf("(%d, %d) ", row, col); //This calls the whole coordinates.
+        //Call row and col right here as these are the directions it would take.
+
+
+        if (dfs(row, col - 1) && localDirection != 1) {
+            *current = crumb;
+            int localDirection = 0;
+
+            //looks one left and checks if it is an empty spot, if so place a crumb.
+            //printf("%s, ", &current[0]);
+            //printf("%s, ", &current[1]);
+            return 1;
+        }
+        if (dfs(row, col + 1) && localDirection != 0) {
+            *current = crumb;
+            int localDirection = 1;
+            //printf("(%d, %d)", row, col);
+             //looks one right and checks if it is an empty spot, if so place a crumb.
+            //printf("%s, ", &current[0]);
+            //printf("%s, ", &current[1]);
+            return 1;
+        }
+        if (dfs(row - 1, col) && localDirection != 3) {
+            *current = crumb;
+            int localDirection = 2;
+           //printf("(%d, %d)", row, col);
+             //looks one up and checks if it is an empty spot, if so place a crumb.
+            //printf("%s, ", &current[0]);
+           // printf("%s, ", &current[1]);
+            return 1;
+        }
+        if (dfs(row + 1, col) && localDirection != 2) {
+            *current = crumb;
+            int localDirection = 3;
+            //printf("(%d, %d)", row, col);
+             //looks one down and checks if it is an empty spot, if so place a crumb.
+       //     printf("%s, ", &current[0]);
+       //     printf("%s, ", &current[1]);
+            return 1;
+        }
+    }
+
+    return 0;
+}
 
 void add_crumbs(){
     for (int i = 0; i < rows; i++) {
@@ -250,68 +330,6 @@ void add_crumbs(){
         }
     }
 }
-
-int dfs(int row, int col) {
-
-
-    int* current = &visited[row][col];
-    testNum++;
-
-    if (*current == goal) {
-        return 1;
-    }
-    //printf("%d, ",localDirection);
-    if (*current == empty) {
-        *current = wall;
-
-
-
-    printf("(%d, %d)", row, col); //This calls the whole coordinates.
-        //Call row and col right here as these are the directions it would take.
-
-
-        if (dfs(row, col - 1)) {
-            *current = crumb;
-            //int localDirection = 0;
-
-            //looks one left and checks if it is an empty spot, if so place a crumb.
-            //printf("%s, ", &current[0]);
-            //printf("%s, ", &current[1]);
-            return 1;
-        }
-        if (dfs(row, col + 1)) {
-            *current = crumb;
-            //int localDirection = 1;
-            //printf("(%d, %d)", row, col);
-             //looks one right and checks if it is an empty spot, if so place a crumb.
-            //printf("%s, ", &current[0]);
-            //printf("%s, ", &current[1]);
-            return 1;
-        }
-        if (dfs(row - 1, col)) {
-            *current = crumb;
-            //int localDirection = 2;
-           //printf("(%d, %d)", row, col);
-             //looks one up and checks if it is an empty spot, if so place a crumb.
-            //printf("%s, ", &current[0]);
-           // printf("%s, ", &current[1]);
-            return 1;
-        }
-        if (dfs(row + 1, col)) {
-            *current = crumb;
-            //int localDirection = 3;
-            //printf("(%d, %d)", row, col);
-             //looks one down and checks if it is an empty spot, if so place a crumb.
-       //     printf("%s, ", &current[0]);
-       //     printf("%s, ", &current[1]);
-            return 1;
-        }
-    }
-
-    return 0;
-}
-
-
 
 void print_maze() {
     for (int i = 0; i < rows; i++) {
@@ -336,22 +354,25 @@ void print_visited() {
 
 int main(){
 
-
 clock_t t; //counts time
 t = clock(); //""
-get_maze("maze.txt");
+get_maze("maze.txt"); //get maze file
 get_visited();
 printf("\nOriginal Maze:\n\n");
 print_maze();
-//dfsStupid(start_row, start_col); //This calls dumb one and uses all spaces including repeating.
-dfs(start_row, start_col); //This calls smart one and only uses spaces that are nessecary. And not repeating
+stupidDfs(start_row, start_col); //This tried to call the dumb one but either way both will not go if there is a crumb and i dont overly know how to change that
+//dfs(start_row, start_col); //This calls smart one and only uses spaces that are nessecary. And not repeating
 add_crumbs();
 printf("\nNew Maze:\n\n");
 print_maze();
 t = clock() - t;
 double time_taken = ((double)t)/CLOCKS_PER_SEC;
+printf("Stats:\n\n");
 printf("Program took %f seconds to execute \n", time_taken);
 printf("Program computed %f computations per second.\n", testNum / time_taken);
+printf("It took %d moves!\n", testNum);
+printf("Start is at: (%d, %d)\n", start_col, start_row);
+printf("Goal is at: (%d, %d)\n\n\n", goal_col, goal_row);
 printf("Press ENTER key to Continue\n");
 getchar();
 return 0;
