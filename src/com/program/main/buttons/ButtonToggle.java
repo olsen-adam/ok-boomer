@@ -88,10 +88,10 @@ public class ButtonToggle extends ObjButton {
         //TIMES VISITED TABLE
         if (bttID == BttID.ToggleColor) {
             int tableX = x;
-            int tableY = y+135;
-            g.drawRect(tableX,tableY,320,150);
-            g.drawString("Squares Visited: " + grid.getVisitedData(false), tableX+20, tableY+50);
-            g.drawString("Squares Revisited: " + grid.getVisitedData(true), tableX+20, tableY+100);
+            int tableY = y+95;
+            g.drawRect(tableX,tableY,320,90);
+            g.drawString("Squares Visited: " + grid.getVisitedData(false), tableX+20, tableY+30);
+            g.drawString("Squares Revisited: " + grid.getVisitedData(true), tableX+20, tableY+70);
         }
     }
 }

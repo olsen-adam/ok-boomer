@@ -30,7 +30,7 @@ public class ButtonBar extends ObjButton {
         width = 200;
         barWidth = (int) (width*0.3);
         baseBarW = barWidth;
-        height = 30;
+        height = 26;
         text = "Speed";
     }
 
