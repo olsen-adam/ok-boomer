@@ -16,6 +16,10 @@ int goal_col;
 int testNum;
 int localDirection = 69;
 int randomMove;
+int userInput;
+int hasMovedFromStart = 0;
+int manDistOld;
+int manDistNew;
 
 enum terrain { //declares different parts of the grid
     empty,
@@ -194,6 +198,7 @@ return( -1 ) // did not find a solution
 
 int stupidDfs(int row, int col) {
 
+    randomMove = ( rand()%4 + 1 );
 
     int* current = &visited[row][col];
 
@@ -208,9 +213,9 @@ int stupidDfs(int row, int col) {
     printf("(%d, %d) ", col, row); //This calls the whole coordinates.
         //Call row and col right here as these are the directions it would take.
 
-
+    //printf("[[%d]]",randomMove); testing to make sure random is random
     testNum++;
-    randomMove = ( rand()%4 );
+
 
         if (stupidDfs(row, col - 1) && randomMove == 1) {
             *current = crumb;
@@ -267,12 +272,12 @@ int dfs(int row, int col) {
     }
     //printf("%d, ",localDirection);
     if (*current == empty) {
-        *current = wall;
+        *current = crumb;
         testNum++;
 
 
 
-    printf("(%d, %d) ", row, col); //This calls the whole coordinates.
+    printf("(%d, %d) ", col, row); //This calls the whole coordinates.
         //Call row and col right here as these are the directions it would take.
 
 
@@ -317,6 +322,69 @@ int dfs(int row, int col) {
     return 0;
 }
 
+int manhatDist (int row, int col) {
+    /* based off of Dr Schaeffers idea
+
+    Search3( from, to, g, depth, previousmove ) // Use a heuristic
+if( from == to ) return( g ) // solution depth
+if( g == depth ) return( -1 ) // cannot find solution within 'depth' moves
+for each legal move m (left, right, up, down ) {
+   // Include this if eliminate redundant moves is enabled
+   if( m is the opposite of previousmove ) // eliminate a left followed by a right (and vice versa)
+                                                                 // eliminate a down followed by an up (vice versa)
+      continue;
+   // end of if eliminate redundant moves is enabled
+   newfrom = make move( from, m );
+
+   // compute heuristic
+   hx = ( x of newfrom - x of to )
+   if( hx < 0) hx = -hx   // Turn -ve values to +ve values
+
+   hy = ( y of newfrom - y of to )
+   if( hy < 0) hy = -hy   // Turn -ve values to +ve values
+
+   h = hx + hy // minimum # of moves to reach goal
+
+   if( g + h <= depth { //Only search if possible to solve problem within the depth constratint
+      result = Search( newfrom, to, g+1, depth, m )
+   }(row, col + 1)
+   undo make move
+   if( result > 0 ) return( result );
+}
+return( -1 ) // did not find a solution
+*/
+
+
+    int* current = &visited[row][col];
+
+
+    if (*current == goal) {
+        return 1;
+    }
+    //printf("%d, ",localDirection);
+    if (*current == empty) {
+        *current = wall;
+        testNum++;
+
+        printf("(%d, %d) ", col, row);  //This calls the whole coordinates.
+                                        //Call row and col right here as these are the directions it would take.
+
+
+    //this next line calculates the manhat distance before moving, in order to compare if the next move is better or worse
+
+        if (hasMovedFromStart == 0) { //with manhatten distance, the lower the number is the closer the user is to the goal
+            hasMovedFromStart = 1; //measures manh distance from start and end if this hasnt been acsessed since beginning
+            manDistOld = abs(start_col - goal_col) + abs(start_row - goal_row);
+        } else if (hasMovedFromStart != 0) {
+            manDistOld = abs(col - goal_col) + abs(row - goal_row);
+        } else {
+        printf("Error");
+        return 0;
+        }
+
+    }
+}
+
 void add_crumbs(){
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
@@ -354,22 +422,30 @@ void print_visited() {
 
 int main(){
 
-clock_t t; //counts time
-t = clock(); //""
+printf("Hello, would you like to execute:\n\n[1] Stupid DFS\n[2] DFS\n\n");
+scanf("%d", &userInput);
+clock_t t; //clock
+t = clock(); //clock
 get_maze("maze.txt"); //get maze file
 get_visited();
 printf("\nOriginal Maze:\n\n");
 print_maze();
-stupidDfs(start_row, start_col); //This tried to call the dumb one but either way both will not go if there is a crumb and i dont overly know how to change that
-//dfs(start_row, start_col); //This calls smart one and only uses spaces that are nessecary. And not repeating
+if (userInput == 1) {
+    stupidDfs(start_row, start_col); //This tried to call the dumb one but either way both will not go if there is a crumb and i dont overly know how to change that
+} else if (userInput == 2) {
+    dfs(start_row, start_col); //This calls smart one and only uses spaces that are nessecary. And not repeating
+} else {
+    printf("Error");
+}
 add_crumbs();
-printf("\nNew Maze:\n\n");
-print_maze();
-t = clock() - t;
-double time_taken = ((double)t)/CLOCKS_PER_SEC;
-printf("Stats:\n\n");
-printf("Program took %f seconds to execute \n", time_taken);
-printf("Program computed %f computations per second.\n", testNum / time_taken);
+printf("(%d, %d)", goal_col, goal_row); // important to show the end coordinate
+printf("\n\nNew Maze:\n\n");
+print_maze(); //clock
+t = clock() - t; //clock
+double time_taken = ((double)t)/CLOCKS_PER_SEC; //clock
+printf("\nStats:\n\n");
+printf("Program took %f seconds to execute \n", time_taken); //clock
+printf("Program computed %f computations per second.\n", testNum / time_taken); //clock
 printf("It took %d moves!\n", testNum);
 printf("Start is at: (%d, %d)\n", start_col, start_row);
 printf("Goal is at: (%d, %d)\n\n\n", goal_col, goal_row);
