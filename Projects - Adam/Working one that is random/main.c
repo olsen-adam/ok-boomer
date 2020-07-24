@@ -19,7 +19,11 @@ int randomMove;
 int userInput;
 int hasMovedFromStart = 0;
 int manDistOld;
-int manDistNew;
+int manDistNewLeft;
+int manDistNewRight;
+int manDistNewUp;
+int manDistNewDown;
+int manDistNextMove = 0;
 
 enum terrain { //declares different parts of the grid
     empty,
@@ -205,7 +209,7 @@ int stupidDfs(int row, int col) {
     if (*current == goal) {
         return 1;
     }
-    if (*current == empty || *current == crumb) { //if current position player is on is empty, it will place a crumb
+    if (*current == empty) { //if current position player is on is empty, it will place a crumb
         *current = crumb;
 
 
@@ -259,21 +263,17 @@ int stupidDfs(int row, int col) {
 }
 
 
+int dfs(int row, int col)
+{
+	int* current = &visited[row][col];
 
+	if (*current == goal) {
+		return 1;
+	}
 
-int dfs(int row, int col) {
-
-
-    int* current = &visited[row][col];
-
-
-    if (*current == goal) {
-        return 1;
-    }
-    //printf("%d, ",localDirection);
-    if (*current == empty) {
-        *current = crumb;
-        testNum++;
+	if (*current == empty) {
+		*current = crumb;
+		testNum++;
 
 
 
@@ -281,48 +281,30 @@ int dfs(int row, int col) {
         //Call row and col right here as these are the directions it would take.
 
 
-        if (dfs(row, col - 1) && localDirection != 1) {
-            *current = crumb;
-            int localDirection = 0;
 
-            //looks one left and checks if it is an empty spot, if so place a crumb.
-            //printf("%s, ", &current[0]);
-            //printf("%s, ", &current[1]);
-            return 1;
-        }
-        if (dfs(row, col + 1) && localDirection != 0) {
-            *current = crumb;
-            int localDirection = 1;
-            //printf("(%d, %d)", row, col);
-             //looks one right and checks if it is an empty spot, if so place a crumb.
-            //printf("%s, ", &current[0]);
-            //printf("%s, ", &current[1]);
-            return 1;
-        }
-        if (dfs(row - 1, col) && localDirection != 3) {
-            *current = crumb;
-            int localDirection = 2;
-           //printf("(%d, %d)", row, col);
-             //looks one up and checks if it is an empty spot, if so place a crumb.
-            //printf("%s, ", &current[0]);
-           // printf("%s, ", &current[1]);
-            return 1;
-        }
-        if (dfs(row + 1, col) && localDirection != 2) {
-            *current = crumb;
-            int localDirection = 3;
-            //printf("(%d, %d)", row, col);
-             //looks one down and checks if it is an empty spot, if so place a crumb.
-       //     printf("%s, ", &current[0]);
-       //     printf("%s, ", &current[1]);
-            return 1;
-        }
-    }
+		if (dfs(row, col - 1)){
+			*current = crumb;
+			return 1;
+		}
+		if (dfs(row + 1, col)){
+			*current = crumb;
+			return 1;
+		}
+		if (dfs(row, col + 1)){
+			*current = crumb;
+			return 1;
+		}
+		if (dfs(row - 1, col)){
+			*current = crumb;
+			return 1;
+		}
+	}
 
-    return 0;
+	return 0;
 }
 
-int manhatDist (int row, int col) {
+
+int manhatDist(int row, int col) {
     /* based off of Dr Schaeffers idea
 
     Search3( from, to, g, depth, previousmove ) // Use a heuristic
@@ -382,7 +364,55 @@ return( -1 ) // did not find a solution
         return 0;
         }
 
-    }
+        manDistNewLeft = abs((col - 1) - goal_col) + abs(row - goal_row); // calculates man distance between each possible move.
+        manDistNewRight = abs((col + 1)  - goal_col) + abs(row - goal_row);
+        manDistNewUp = abs(col - goal_col) + abs((row - 1) - goal_row);
+        manDistNewDown = abs(col - goal_col) + abs((row + 1) - goal_row);
+
+        if (manDistNewLeft <= manDistNewRight && manDistNewLeft <= manDistNewUp && manDistNewLeft <= manDistNewDown) {
+          manDistNextMove = 1;
+          printf("(%dL, %dR, %dU, %dD, %d Next) | ", manDistNewLeft, manDistNewRight, manDistNewUp, manDistNewDown, manDistNextMove);
+        } else if (manDistNewRight <= manDistNewLeft && manDistNewRight <= manDistNewUp && manDistNewRight <= manDistNewDown) {
+          manDistNextMove = 2;
+          printf("(%dL, %dR, %dU, %dD, %d Next) | ", manDistNewLeft, manDistNewRight, manDistNewUp, manDistNewDown, manDistNextMove);
+        } else if (manDistNewUp <= manDistNewRight && manDistNewUp <= manDistNewLeft && manDistNewUp <= manDistNewDown) {
+          manDistNextMove = 3;
+          printf("(%dL, %dR, %dU, %dD, %d Next) | ", manDistNewLeft, manDistNewRight, manDistNewUp, manDistNewDown, manDistNextMove);
+        } else if (manDistNewDown <= manDistNewRight && manDistNewDown <= manDistNewUp && manDistNewDown <= manDistNewLeft) {
+          manDistNextMove = 4;
+          printf("(%dL, %dR, %dU, %dD, %d Next) | ", manDistNewLeft, manDistNewRight, manDistNewUp, manDistNewDown, manDistNextMove);
+        } else {
+        printf("Error while calculating man dist");
+        }
+
+        if (manDistNextMove == 1) {
+            if (manhatDist(row, col - 1)) {
+                *current = crumb;
+                return 1;
+                }
+
+        }
+        if (manDistNextMove == 2) {
+            if (manhatDist(row, col + 1)) {
+                *current = crumb;
+                return 1;
+            }
+        }
+        if (manDistNextMove == 3) {
+            if (manhatDist(row - 1, col)) {
+                *current = crumb;
+                return 1;
+            }
+        }
+        if (manDistNextMove == 4) {
+            if (manhatDist(row + 1, col)) {
+                *current = crumb;
+                return 1;
+            }
+        }
+}
+printf("Error could not pathfind");
+return 1;
 }
 
 void add_crumbs(){
@@ -421,8 +451,7 @@ void print_visited() {
 
 
 int main(){
-
-printf("Hello, would you like to execute:\n\n[1] Stupid DFS\n[2] DFS\n\n");
+printf("Hello, would you like to execute:\n\n[1] Stupid DFS\n[2] DFS\n[3] With Man Distance\n\n");
 scanf("%d", &userInput);
 clock_t t; //clock
 t = clock(); //clock
@@ -434,9 +463,10 @@ if (userInput == 1) {
     stupidDfs(start_row, start_col); //This tried to call the dumb one but either way both will not go if there is a crumb and i dont overly know how to change that
 } else if (userInput == 2) {
     dfs(start_row, start_col); //This calls smart one and only uses spaces that are nessecary. And not repeating
-} else {
-    printf("Error");
+} else if (userInput == 3) {
+    manhatDist(start_row, start_col);
 }
+
 add_crumbs();
 printf("(%d, %d)", goal_col, goal_row); // important to show the end coordinate
 printf("\n\nNew Maze:\n\n");
