@@ -24,6 +24,9 @@ int manDistNewRight;
 int manDistNewUp;
 int manDistNewDown;
 int manDistNextMove = 0;
+int lastX[10000];
+int lastY[10000];
+
 
 enum terrain { //declares different parts of the grid
     empty,
@@ -214,7 +217,7 @@ int stupidDfs(int row, int col) {
 
 
 
-    printf("(%d, %d) ", col, row); //This calls the whole coordinates.
+    //printf("(%d, %d) ", col, row); //This calls the whole coordinates.
         //Call row and col right here as these are the directions it would take.
 
     //printf("[[%d]]",randomMove); testing to make sure random is random
@@ -275,9 +278,10 @@ int dfs(int row, int col)
 		*current = crumb;
 		testNum++;
 
+        lastX[testNum] = col;
+        lastY[testNum] = row;
 
-
-    printf("(%d, %d) ", col, row); //This calls the whole coordinates.
+        //printf("(%d, %d) ", col, row); //This calls the whole coordinates.
         //Call row and col right here as these are the directions it would take.
 
 
@@ -348,11 +352,15 @@ return( -1 ) // did not find a solution
         *current = wall;
         testNum++;
 
-        printf("(%d, %d) ", col, row);  //This calls the whole coordinates.
+        lastX[testNum] = col;
+        lastY[testNum] = row;
+
+        //printf("(%d, %d) ", col, row);  //This calls the whole coordinates.
                                         //Call row and col right here as these are the directions it would take.
 
 
-    //this next line calculates the manhat distance before moving, in order to compare if the next move is better or worse
+/*      //this next line calculates the manhat distance before moving, in order to compare if the next move is better or worse
+        //SIKE I AINT USING IT :))))))) it is useless so...
 
         if (hasMovedFromStart == 0) { //with manhatten distance, the lower the number is the closer the user is to the goal
             hasMovedFromStart = 1; //measures manh distance from start and end if this hasnt been acsessed since beginning
@@ -363,11 +371,25 @@ return( -1 ) // did not find a solution
         printf("Error");
         return 0;
         }
-
+*/
         manDistNewLeft = abs((col - 1) - goal_col) + abs(row - goal_row); // calculates man distance between each possible move.
         manDistNewRight = abs((col + 1)  - goal_col) + abs(row - goal_row);
         manDistNewUp = abs(col - goal_col) + abs((row - 1) - goal_row);
         manDistNewDown = abs(col - goal_col) + abs((row + 1) - goal_row);
+
+        if (visited[row][col + 1] == wall) {
+            manDistNewRight = 1337;
+
+        }
+        if (visited[row][col - 1] == wall) {
+            manDistNewLeft = 1337;
+        }
+        if (visited[row + 1][col] == wall) {
+            manDistNewDown = 1337;
+        }
+        if (visited[row - 1][col] == wall) {
+            manDistNewUp = 1337;
+        }
 
         if (manDistNewLeft <= manDistNewRight && manDistNewLeft <= manDistNewUp && manDistNewLeft <= manDistNewDown) {
           manDistNextMove = 1;
@@ -410,6 +432,7 @@ return( -1 ) // did not find a solution
                 return 1;
             }
         }
+
 }
 printf("Error could not pathfind");
 return 1;
@@ -451,7 +474,7 @@ void print_visited() {
 
 
 int main(){
-printf("Hello, would you like to execute:\n\n[1] Stupid DFS\n[2] DFS\n[3] With Man Distance\n\n");
+printf("Hello, would you like to execute:\n\n[1] DFS\n[2] With Man Distance\n\n");
 scanf("%d", &userInput);
 clock_t t; //clock
 t = clock(); //clock
@@ -460,10 +483,8 @@ get_visited();
 printf("\nOriginal Maze:\n\n");
 print_maze();
 if (userInput == 1) {
-    stupidDfs(start_row, start_col); //This tried to call the dumb one but either way both will not go if there is a crumb and i dont overly know how to change that
-} else if (userInput == 2) {
     dfs(start_row, start_col); //This calls smart one and only uses spaces that are nessecary. And not repeating
-} else if (userInput == 3) {
+} else if (userInput == 2) {
     manhatDist(start_row, start_col);
 }
 
@@ -475,12 +496,13 @@ t = clock() - t; //clock
 double time_taken = ((double)t)/CLOCKS_PER_SEC; //clock
 printf("\nStats:\n\n");
 printf("Program took %f seconds to execute \n", time_taken); //clock
-printf("Program computed %f computations per second.\n", testNum / time_taken); //clock
+printf("Program computed %f moves per second.\n", testNum / time_taken); //clock
 printf("It took %d moves!\n", testNum);
 printf("Start is at: (%d, %d)\n", start_col, start_row);
 printf("Goal is at: (%d, %d)\n\n\n", goal_col, goal_row);
-printf("Press ENTER key to Continue\n");
-getchar();
+printf("%d, %d", lastX[25], lastY[25]); // used to test that the array worked. It did :)
+
+
 return 0;
 }
 
