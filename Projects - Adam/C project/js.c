@@ -34,7 +34,6 @@ int success;
 int g;
 int d;
 int manDist;
-int movesTaken;
 
 
 
@@ -47,78 +46,78 @@ enum terrain { //declares different parts of the grid
 
 void alloc_maze()
 {
-	maze = malloc(rows * sizeof(char*));
+maze = malloc(rows * sizeof(char*));
 
-	int i;
-	for (i = 0; i < rows; ++i){
-		maze[i] = malloc(cols * sizeof(char*));
-	}
+int i;
+for (i = 0; i < rows; ++i){
+maze[i] = malloc(cols * sizeof(char*));
+}
 }
 
 void alloc_visited()
 {
-	visited = malloc(rows * sizeof(char*));
+visited = malloc(rows * sizeof(char*));
 
-	int i;
-	for (i = 0; i < rows; ++i){
-		visited[i] = malloc(cols * sizeof(char*));
-	}
+int i;
+for (i = 0; i < rows; ++i){
+visited[i] = malloc(cols * sizeof(char*));
+}
 }
 
 void get_maze(char* file_name)
 {
-	char c;
-	char rows_s[3] = { '\0' };
-	char cols_s[3] = { '\0' };
-	int rows_i = 0;
-	int cols_i = 0;
-	int swap = 0;
+char c;
+char rows_s[3] = { '\0' };
+char cols_s[3] = { '\0' };
+int rows_i = 0;
+int cols_i = 0;
+int swap = 0;
 
-	FILE* maze_file = fopen(file_name, "r");
+FILE* maze_file = fopen(file_name, "r");
 
-	if (maze_file) {
-		while ((c = getc(maze_file)) != EOF) {
-			if (c == '\n') {
-				break;
-			} else if (c == ','){
-				swap = 1;
-			} else if (!swap) {
-				rows_s[rows_i] = c;
-				rows_i++;
-			} else {
-				cols_s[cols_i] = c;
-				cols_i++;
-			}
-		}
-	} else {
-		printf("No such file!");
-		return;
-	}
+if (maze_file) {
+while ((c = getc(maze_file)) != EOF) {
+if (c == '\n') {
+break;
+} else if (c == ','){
+swap = 1;
+} else if (!swap) {
+rows_s[rows_i] = c;
+rows_i++;
+} else {
+cols_s[cols_i] = c;
+cols_i++;
+}
+}
+} else {
+printf("No such file!");
+return;
+}
 
-	rows = atoi(rows_s);
-	cols = atoi(cols_s);
+rows = atoi(rows_s);
+cols = atoi(cols_s);
 
-	alloc_maze();
+alloc_maze();
 
-	int i,j;
+int i,j;
 
-	for (i = 0; i < rows; ++i) {
-		for (j = 0; j < cols; ++j) {
+for (i = 0; i < rows; ++i) {
+for (j = 0; j < cols; ++j) {
 
-			if ((c = getc(maze_file)) == '\n') {
-				c = getc(maze_file);
-			}
+if ((c = getc(maze_file)) == '\n') {
+c = getc(maze_file);
+}
 
-			maze[i][j] = c;
+maze[i][j] = c;
 
-			if (c =='S') {
-				start_row = i;
-				start_col = j;
-			}
-		}
-	}
+if (c =='S') {
+start_row = i;
+start_col = j;
+}
+}
+}
 
-	fclose(maze_file);
+fclose(maze_file);
 }
 
 void get_visited() {
@@ -281,15 +280,15 @@ int stupidDfs(int row, int col) {
 */
 
 int dfs(int row, int col) {
-	int* current = &visited[row][col];
+int* current = &visited[row][col];
 
-	if (*current == goal) {
-		return 1;
-	}
+if (*current == goal) {
+return 1;
+}
 
-	if (*current == empty) {
-		*current = crumb;
-		testNum++;
+if (*current == empty) {
+*current = crumb;
+testNum++;
 
         lastX[testNum] = col;
         lastY[testNum] = row;
@@ -299,25 +298,25 @@ int dfs(int row, int col) {
 
 
 
-		if (dfs(row, col - 1)){
-			*current = crumb;
-			return 1;
-		}
-		if (dfs(row + 1, col)){
-			*current = crumb;
-			return 1;
-		}
-		if (dfs(row, col + 1)){
-			*current = crumb;
-			return 1;
-		}
-		if (dfs(row - 1, col)){
-			*current = crumb;
-			return 1;
-		}
-	}
+if (dfs(row, col - 1)){
+*current = crumb;
+return 1;
+}
+if (dfs(row + 1, col)){
+*current = crumb;
+return 1;
+}
+if (dfs(row, col + 1)){
+*current = crumb;
+return 1;
+}
+if (dfs(row - 1, col)){
+*current = crumb;
+return 1;
+}
+}
 
-	return 0;
+return 0;
 }
 
 int newManhatDist(int row, int col, int d, int g) {
@@ -334,10 +333,10 @@ return 1;
   All this meant is moving the error message from the end of the program to here.
   Also, in your code, when it isnot empty, you return a 1. Shouldn;t it be a 0?
 */
-if (*current != empty) {
-printf("Error could not pathfind");
-return 0;
-}
+//if (*current != empty) {
+// printf("Error could not pathfind");
+// return 0;
+//}
 
 /* From now on we know that we are on an empty square */
 
@@ -412,14 +411,13 @@ success = newManhatDist(newrow, newcol, d, g + 1);
 if(visited[newrow][newcol] == goal ) {
 printf( "Found a solution!!\n" ); /* No need to continue searching */
 break;
-return 1;
-}
 }
 
+}
 /* If we go through all 4 cases above and fail, success is a 0 */
 return( success );
-}
 
+}
 int manhatDist(int row, int col) {
 
 
@@ -571,7 +569,7 @@ print_maze();
 } else if (userInput == 3) {
     newManhatDist(start_row, start_col, d, g);
 }*/
-for( depth = 1; depth < 100; depth++ )
+for( depth = 1; depth < 200; depth++ )
    {
 /* JS */
 printf( "Depth %d start\n", depth );
@@ -582,12 +580,6 @@ if( success == 1 ) {
 break;
 }
    }
-movesTaken = testNum;
-   while (movesTaken > 1) {
-   printf("%d, %d", lastX[testNum], lastY[testNum]);
-   movesTaken--;
-   // used to test that the array worked. It did :)
-}
 add_crumbs();
 printf("\n\nNew Maze:\n\n");
 print_maze(); //clock
@@ -599,10 +591,8 @@ printf("Program computed %f moves per second.\n", testNum / time_taken); //clock
 printf("It took %d moves!\n", testNum);
 printf("Start is at: (%d, %d)\n", start_col, start_row);
 printf("Goal is at: (%d, %d)\n\n\n", goal_col, goal_row);
-testNum = movesTaken;
-
+printf("%d, %d", lastX[250], lastY[250]); // used to test that the array worked. It did :)
 
 
 return 0;
 }
-
