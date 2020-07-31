@@ -34,6 +34,8 @@ int success;
 int g;
 int d;
 int manDist;
+int lastMove;
+int currMove;
 
 
 
@@ -319,105 +321,105 @@ return 1;
 return 0;
 }
 
-int newManhatDist(int row, int col, int d, int g) {
+/* JS LOOK -- deleted necessary code and made changes */
 
-int* current = &visited[row][col];
+/* Use this to count how big the tree is */
+/* Might be a big number! */
+long long Nodes;
 
-if (*current == goal) {
-/* JS wrong result! */
-// return 0;
-return 1;
-}
+int newManhatDist(int row, int col, int d, int g, int lastMove) {
 
-/* I put the error test first so we do not have to indent the rest of the program.
-  All this meant is moving the error message from the end of the program to here.
-  Also, in your code, when it isnot empty, you return a 1. Shouldn;t it be a 0?
-*/
-//if (*current != empty) {
-// printf("Error could not pathfind");
-// return 0;
-//}
+	int i;
+	int newrow;
+	int newcol;
+	int success;
+	int manDist;
 
-/* From now on we know that we are on an empty square */
 
-/* You did the following to have the program avoid going back on itself.
-  For the first option -- simple search -- we don't mind if the man does the stupid thing and
-  goes back from where he was from. In the next step up, we add the capability to avoid this repeat. */
+	int* current = &visited[row][col];
+
+	// Count how many nodes in our search tree */
+	Nodes++;
+
+	if (*current == goal) {
+		return 1;
+	}
+
         //*current = wall;
-        testNum++;
-        lastX[testNum] = col;
-        lastY[testNum] = row;
+/* JS DELETE -- this is a bug. Can you gigure out why? */
+        // testNum++;
+        // lastX[testNum] = col;
+        // lastY[testNum] = row;
+
+	success = 0; /* 0 = fail to find a solution; 1 = found a solution */
+	for( i = 0; i < 4; i++ ) {
+
+		newcol = col;
+		newrow = row;
+
+		switch( i ) {
+   		    case 0: /* left */
+            //if (lastMove != 1) {
+			newcol = col - 1;
+			currMove = 0;
+			//}
+			break;
+   		    case 1: /* right */
+            //if (lastMove != 0) {
+			newcol = col + 1;
+			currMove = 1;
+           // }
+			break;
+   		    case 2: /* up */
+            //if (lastMove != 3) {
+			newrow = row - 1;
+			currMove = 3;
+            //}
+			break;
+   		    case 3: /* down */
+			//if (lastMove != 2) {
+			newrow = row + 1;
+			currMove = 4;
+			//}
+			break;
+   		    default:
+			printf( "Should never happen!\n" );
+		}
 
 
-/* Debugging */
-        //printf("(%d, %d) ", col, row);  //This calls the whole coordinates.
-                                        //Call row and col right here as these are the directions it would take.
+		/* See if the move will hit a wall */
+		if (visited[newrow][newcol] == wall) {
+			continue;
+		}
+		if (abs( currMove - lastMove ) == 1) {
+            continue;
+		}
 
+		manDist = abs( newcol - goal_col ) + abs( newrow - goal_row );
 
-/* Here is the big thing -- I want to eliminate redundant code */
-/* Here I use 0, 1, 2, 3 for left, right, up, down.
-  You can use more meaningful names than that.
-*/
-/* JS This has to be inside the loop */
-// newcol = col;
-// newrow = row;
-success = 0; /* 0 = fail to find a solution; 1 = found a solution */
-for( i = 0; i < 4; i++ ) {
-/* JS Moved to inside loop */
-newcol = col;
-newrow = row;
-switch( i ) {
-   case 0: /* left */
-newcol = col - 1;
-break;
-   case 1: /* right */
-newcol = col + 1;
-break;
-   case 2: /* up */
-newrow = row - 1;
-break;
-   case 3: /* down */
-newrow = row + 1;
-break;
-   default:
-printf( "Should never happen!\n" );
+		if( g+1 + manDist > d ) {
+			continue;
+		}
+
+		success = newManhatDist(newrow, newcol, d, g + 1, currMove);
+
+		/* JS FIX */
+		if( success ) {
+			/* Added printing out the solution -- comes out in reverse order */
+			printf( "SOLUTION %2d: (%d,%d)\n", g, newcol, newrow );
+			lastX[g + 1] = newcol;
+			lastY[g + 1] = newrow;
+
+			break;
+		}
+	}
+
+	return( success );
 }
 
+/* JS LOOK END */
 
-/* See if the move will hit a wall */
-if(visited[newrow][newcol] == wall) {
-/* If so, move on to consider the next move */
-continue;
-}
 
-/* See how we now have one calculation that handles all four cases! */
-manDist = abs( newcol - goal_col ) + abs( newrow - goal_row );
-
-/* For debugging */
-          printf("Move to (%d,%d), MD=%d | ", newcol, newrow, manDist );
-
-/* Here is where MD saves us. This is the key line of code that cuts off huge swaths of the search */
-/* JS off by one error */
-/* if( g + manDist > d ) { */
-if( g+1 + manDist > d ) {
-/* If we have moved down the tree g moves and we have at least manDist to go, but that exceeds
-  the maximum depth we are allowed to search, then stop searching along this line!
-*/
-continue;
-}
-
-/* Pass the new row/col down recursively and add 1 to g -- we are now one move deeper in the search */
-success = newManhatDist(newrow, newcol, d, g + 1);
-if(visited[newrow][newcol] == goal ) {
-printf( "Found a solution!!\n" ); /* No need to continue searching */
-break;
-}
-
-}
-/* If we go through all 4 cases above and fail, success is a 0 */
-return( success );
-
-}
 int manhatDist(int row, int col) {
 
 
@@ -455,10 +457,10 @@ int manhatDist(int row, int col) {
         return 0;
         }
 */
-        manDistNewLeft = abs((col - 1) - goal_col) + abs(row - goal_row); // calculates man distance between each possible move.
-        manDistNewRight = abs((col + 1)  - goal_col) + abs(row - goal_row);
-        manDistNewUp = abs(col - goal_col) + abs((row - 1) - goal_row);
-        manDistNewDown = abs(col - goal_col) + abs((row + 1) - goal_row);
+        manDistNewLeft = abs(( col - 1 ) - goal_col) + abs( row - goal_row); // calculates man distance between each possible move.
+        manDistNewRight = abs(( col + 1)  - goal_col) + abs( row - goal_row);
+        manDistNewUp = abs( col - goal_col) + abs(( row - 1) - goal_row);
+        manDistNewDown = abs( col - goal_col) + abs(( row + 1) - goal_row);
 
         if (visited[row][col + 1] == wall) {
             manDistNewRight = 1337;
@@ -552,37 +554,32 @@ void print_visited() {
     printf("\n");
 }
 
-
 int main(){
-//printf("Hello, would you like to execute:\n\n[1] DFS\n[2] With Man Distance\n\n");
-//scanf("%d", &userInput);
-clock_t t; //clock
-t = clock(); //clock
-get_maze("maze.txt"); //get maze file
-get_visited();
-printf("\nOriginal Maze:\n\n");
-print_maze();
-/*if (userInput == 1) {
-    dfs(start_row, start_col); //This calls smart one and only uses spaces that are nessecary. And not repeating
-} else if (userInput == 2) {
-    manhatDist(start_row, start_col);
-} else if (userInput == 3) {
-    newManhatDist(start_row, start_col, d, g);
-}*/
-for( depth = 1; depth < 200; depth++ )
-   {
-/* JS */
-printf( "Depth %d start\n", depth );
-      success = newManhatDist(start_col, start_row, depth, 0 );
-/* JS */
-printf( "Depth %d result %d\n", depth, success );
-if( success == 1 ) {
-break;
-}
-   }
-add_crumbs();
+	printf("Start\n");
+	clock_t t; //clock
+	t = clock(); //clock
+	get_maze("maze.txt"); //get maze file
+	get_visited();
+	printf("\nOriginal Maze:\n\n");
+	print_maze();
+
+/* JS LOOK START */
+	/* Added Nodes to count tree size */
+	Nodes = 0;
+	for( depth = 1; depth < 100; depth++ )
+   	{
+		//printf( "Depth %2d = ", depth );
+		success = newManhatDist(start_col, start_row, depth, 0, currMove);
+		printf( "Depth %2d = %15lld nodes\n", depth, Nodes );
+		if( success == 1 ) {
+			break;
+		}
+   	}
+/* JS LOOK END */
+
+//add_crumbs();
 printf("\n\nNew Maze:\n\n");
-print_maze(); //clock
+//print_maze();
 t = clock() - t; //clock
 double time_taken = ((double)t)/CLOCKS_PER_SEC; //clock
 printf("\nStats:\n\n");
@@ -591,7 +588,7 @@ printf("Program computed %f moves per second.\n", testNum / time_taken); //clock
 printf("It took %d moves!\n", testNum);
 printf("Start is at: (%d, %d)\n", start_col, start_row);
 printf("Goal is at: (%d, %d)\n\n\n", goal_col, goal_row);
-printf("%d, %d", lastX[250], lastY[250]); // used to test that the array worked. It did :)
+printf("%d, %d", lastX[4], lastY[4]); // used to test that the array worked. It did :)
 
 
 return 0;
