@@ -36,6 +36,8 @@ int d;
 int manDist;
 int lastMove;
 int currMove;
+int currRow;
+int currCol;
 
 
 
@@ -419,6 +421,23 @@ int newManhatDist(int row, int col, int d, int g, int lastMove) {
 
 /* JS LOOK END */
 
+int aStar(int row, int col, int curr) {
+
+    int* current = &visited[row][col];
+    Nodes++;
+
+    if (*current == goal) {
+		return 1;
+	}
+
+	success = 0;
+
+	currNodeG = abs( oldCol - col ) + abs( start_row - row );
+	currNodeH = abs;
+	currNodeF = ;
+
+
+}
 
 int manhatDist(int row, int col) {
 
@@ -556,7 +575,7 @@ void print_visited() {
 
 int main(){
 	printf("Start\n");
-	printf("Would you like to execute:\n[1] Dfs\n[2] ManHat");
+	printf("Would you like to execute:\n[1] Dfs\n[2] ManHat\n\n");
 	scanf("%d", &userInput);
 	clock_t t; //clock
 	t = clock(); //clock
