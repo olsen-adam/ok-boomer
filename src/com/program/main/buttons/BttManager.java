@@ -20,6 +20,21 @@ public class BttManager {
         }
     }
 
+    public void setAllTint() {
+        for (int i = 0; i < buttons.size(); i++) {
+            switch (buttons.get(i).bttID) {
+                case CircleStart:
+                case CircleReset:
+                case CircleNext:
+                case TextMapEdit:
+                case SpeedBar:
+                    buttons.get(i).setTint();
+                    break;
+            }
+        }
+
+    }
+
     public void addButton(ObjButton button) {
         buttons.add(button);
     }

@@ -8,7 +8,7 @@ import java.awt.event.MouseMotionListener;
 public class MouseIn implements MouseListener, MouseMotionListener {
         int mX = 0;
         int mY = 0;
-        boolean mClicked, mPressed, mReleased;
+        boolean mClicked, mPressed, mReleased, mDragged;
 
     public MouseIn() {
 
@@ -19,11 +19,12 @@ public class MouseIn implements MouseListener, MouseMotionListener {
         mClicked = false;
         mPressed = false;
         mReleased = false;
+        mDragged = false;
     }
     public void render(Graphics g) {
-        g.setColor(Color.black);
-        g.drawString("MX: " + mX,5,12);
-        g.drawString("MY: " + mY,5,30);
+        /*g.setColor(Color.black);
+        g.drawString("MX: " + mX,5,17);
+        g.drawString("MY: " + mY,5,35);*/
         //g.drawString(String.valueOf(mClicked),5,48);
     }
 
@@ -49,6 +50,7 @@ public class MouseIn implements MouseListener, MouseMotionListener {
     public void mouseDragged(MouseEvent e) {
         mX = e.getX();
         mY = e.getY();
+        mDragged = true;
     }
     @Override
     public void mouseMoved(MouseEvent e) {
@@ -64,6 +66,9 @@ public class MouseIn implements MouseListener, MouseMotionListener {
     }
     public boolean getReleased() {
         return this.mReleased;
+    }
+    public boolean getDragged() {
+        return this.mDragged;
     }
     public int getMouseX() {
         return this.mX;

@@ -1,10 +1,13 @@
 package com.program.main.buttons;
 
 public enum BttID {
-    TextStart,
+    CircleStart,
+    CircleReset,
     TextReset,
+    CircleNext,
     TextMapEdit,
     TextLoadMap,
+    TextNewMap,
     ToggleRedund,
     ToggleMDist,
     ToggleAStar,

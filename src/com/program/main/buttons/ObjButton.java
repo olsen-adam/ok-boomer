@@ -21,4 +21,5 @@ public abstract class ObjButton {
 
     public abstract void tick();
     public abstract void render(Graphics g);
+    public abstract void setTint();
 }

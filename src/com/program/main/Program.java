@@ -13,6 +13,16 @@ public class Program extends Canvas implements Runnable{
     public static void main(String args[]) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
         new Program();
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
+        /*Font[] fonts;
+        fonts =
+                GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts( );
+        for (int i = 0; i < fonts.length; i++) {
+            System.out.print(fonts[i].getFontName( ) + " : ");
+            System.out.print(fonts[i].getFamily( ) + " : ");
+            System.out.print(fonts[i].getName( ));
+            System.out.println( );
+        }*/
     }
 
     public static final int WIDTH = 1000, HEIGHT = 700;
@@ -31,7 +41,7 @@ public class Program extends Canvas implements Runnable{
     public Program() {
         mouseIn = new MouseIn();
         grid = new Grid(mouseIn, this);
-        gui = new GUI();
+        gui = new GUI(mouseIn);
         ptManager = new PtManager();
         grid.setPtManager(ptManager);
         grid.setGUI(gui);
@@ -40,7 +50,7 @@ public class Program extends Canvas implements Runnable{
         this.addMouseMotionListener(mouseIn);
         createButtons();
 
-        window = new Window(WIDTH, HEIGHT, "bruh", this);
+        window = new Window(WIDTH, HEIGHT, "Pathfinding", this);
     }
 
     public synchronized void init() {
@@ -102,57 +112,80 @@ public class Program extends Canvas implements Runnable{
 
         Graphics g = bs.getDrawGraphics();
 
+        Graphics2D g2 = (Graphics2D)g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+
         //Draw Stuff
         g.setColor(bgCol);
         g.fillRect(0,0,WIDTH,HEIGHT);
 
-        bttManager.render(g);
         grid.render(g);
+        bttManager.render(g);
         mouseIn.render(g);
         ptManager.render(g);
         gui.render(g); // DO THIS LAST
 
         g.dispose();
+        g2.dispose();
         bs.show();
     }
 
     public void createButtons() {
         bttManager = new BttManager();
         grid.setBttManager(bttManager);
-        bttManager.addButton(new ButtonText(grid.getGridStartX()+30,grid.getGridStartY()-50,TextStart,grid,mouseIn));
-        bttManager.addButton(new ButtonText(grid.getGridStartX()+200,grid.getGridStartY()-40,TextReset,grid,mouseIn));
-        bttManager.addButton(new ButtonText(grid.getGridStartX()+grid.getGridActualW()-150,grid.getGridStartY()-60,TextMapEdit,grid,mouseIn));
-        int sbx = 384;
-        ButtonText bl = new ButtonText(WIDTH-sbx,20,TextLoadMap,grid,mouseIn);
+        //ButtonText bSt = new ButtonText(grid.getGridStartX()+30,grid.getGridStartY()-50,TextStart,grid,mouseIn);
+        //bttManager.addButton(new ButtonCircle(grid.getGridStartX()+100,grid.getGridStartY()+50,TextStart,grid,mouseIn));
+        //grid.setButtonStart(bSt);
+            ButtonCircle bSt = new ButtonCircle(108,13,CircleStart,grid,mouseIn);
+            grid.setButtonStart(bSt);
+        bttManager.addButton(bSt);
+        bttManager.addButton(new ButtonCircle(226,17,CircleReset,grid,mouseIn));
+        bttManager.addButton(new ButtonText(439,0,TextMapEdit,grid,mouseIn));
+        //bttManager.addButton(new ButtonText(grid.getGridStartX()+150,grid.getGridStartY()-40,TextNewMap,grid,mouseIn));
+        int sbx = grid.sideBarX;
+        ButtonText bl = new ButtonText(sbx,20,TextLoadMap,grid,mouseIn);
         grid.setButtonLoad(bl);
         gui.setButtonLoad(bl);
         bttManager.addButton(bl);
-        int tx = 10;
+        int tx = 30;
+        ButtonToggle btMD = null;
+        ButtonToggle btRedund = null;
         for (int i  = 0; i < 4; i++) {
-            int ty = 90+50*i;
-            BttID bid = TextStart, Iid = TextStart;
+            int ty = 105+63*i;
+            ButtonToggle bt;
+            BttID bid = CircleStart, Iid = CircleStart;
             switch (i){
-                case 0: bid = ToggleRedund; Iid = InfoRedund; break;
-                case 1: bid = ToggleMDist; Iid = InfoMDist; break;
-                case 2: bid = ToggleAStar; Iid = InfoAStar; break;
-                case 3: bid = ToggleColor; Iid = InfoColor; break;
+                case 0: bid = ToggleRedund;
+                    bt = new ButtonToggle(sbx+tx, ty, bid,grid,mouseIn);
+                    btRedund = bt;
+                    Iid = InfoRedund; break;
+                case 1: bid = ToggleMDist;
+                    bt = new ButtonToggle(sbx+tx, ty, bid,grid,mouseIn);
+                    btMD = bt;
+                    Iid = InfoMDist; break;
+                case 2: bid = ToggleAStar;
+                    bt = new ButtonToggle(sbx+tx, ty, bid,grid,mouseIn);
+                    bt.setIndependent(btMD);
+                    bt.setBundled(btRedund);
+                    btMD.setIndependent(bt);
+                    btRedund.setBundled(bt);
+                    Iid = InfoAStar; break;
+                case 3: bid = ToggleColor;
+                    bt = new ButtonToggle(sbx+tx, ty, bid,grid,mouseIn);
+                    Iid = InfoColor; break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + i);
             }
-            bttManager.addButton(new ButtonToggle(WIDTH-sbx+tx, ty, bid,grid,mouseIn));
-            bttManager.addButton(new ButtonInfo(WIDTH-sbx+tx+300, ty-4, Iid,grid,mouseIn));
+            bttManager.addButton(bt);
+            bttManager.addButton(new ButtonInfo(sbx+tx+243, ty-2, Iid,grid,mouseIn));
         }
-        ButtonBar b = new ButtonBar(WIDTH-sbx+120,290,TextLoadMap,grid,mouseIn);
-        grid.setButtonBar(b);
+        ButtonBar b = new ButtonBar(sbx+tx,405,SpeedBar,grid,mouseIn);
+        //grid.setButtonBar(b);
         bttManager.addButton(b);
     }
 
     public void setBgCol(Color c) {
         bgCol = c;
-    }
-
-    public int getWIDTH() {
-        return WIDTH;
-    }
-    public int getHEIGHT() {
-        return HEIGHT;
     }
 }

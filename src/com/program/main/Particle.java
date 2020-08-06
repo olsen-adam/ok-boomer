@@ -9,14 +9,14 @@ public class Particle {
     private PtManager ptManager;
     private Random r = new Random();
 
-    public Particle(int x, int y, float hsp, PtManager ptManager) {
+    public Particle(int x, int y, float hsp, PtManager ptManager, float rad, float vsp) {
         this.x = x;
         this.y = y;
         this.hsp = hsp;
         this.ptManager = ptManager;
 
-        rad = 20+r.nextInt(5);
-        vsp = -1.2f-r.nextFloat()*1.2f;
+        this.rad = rad;
+        this.vsp = vsp;
         decayMult = 0.95f;
         decaySubt = 0.2f;
     }
