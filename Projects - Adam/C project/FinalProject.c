@@ -36,8 +36,8 @@ int d;
 int manDist;
 int lastMove;
 int currMove;
-int currRow;
-int currCol;
+int movesTaken;
+int lastMoveTaken[50000];
 
 
 
@@ -411,6 +411,7 @@ int newManhatDist(int row, int col, int d, int g, int lastMove) {
 			printf( "SOLUTION %2d: (%d,%d)\n", g, newcol, newrow );
 			lastX[g + 1] = newcol;
 			lastY[g + 1] = newrow;
+			testNum++;
 
 			break;
 		}
@@ -419,12 +420,75 @@ int newManhatDist(int row, int col, int d, int g, int lastMove) {
 	return( success );
 }
 
-/* JS LOOK END */
+typedef struct {
+    int isOpen;
+    int fValueNode;
+    int gValueNode;
+    int hValueNode;
+} node;
 
-int aStar(int row, int col, int curr) {
+/*typedef struct {
+    int isOpen;
+    int fValueNode;
+    int gValueNode;
+    int hValueNode;
+} node;
+
+int start_col;
+int start_row;
+int row;
+int col;
+int goal_col;
+int goal_row;
+
+
+
+int main()
+{
+
+    start_col = 1;
+    start_row = 1;
+    goal_col = 25;
+    goal_row = 15;
+    int Nodes;
+    row = 12;
+    col = 4;
+    node numNode[62500];
+    for (Nodes = 0; Nodes < 20; Nodes++) {
+        numNode[Nodes].gValueNode = abs( start_col - col ) + abs( start_row - row );
+	    numNode[Nodes].hValueNode = pow( abs( goal_col - col ), 2) + pow( abs( goal_row - row ), 2);
+	    numNode[Nodes].fValueNode = numNode[Nodes].hValueNode + numNode[Nodes].gValueNode;
+	    row++;
+	printf("%d\n", numNode[Nodes].fValueNode);
+    }
+
+    numNode[Nodes].gValueNode = abs( start_col - col ) + abs( start_row - row );
+	numNode[1].hValueNode = pow( abs( goal_col - col ), 2) + pow( abs( goal_row - row ), 2);
+	numNode[1].fValueNode = numNode[1].hValueNode + numNode[1].gValueNode;
+
+	printf("%d", numNode[1].fValueNode);
+
+    return 0;
+}
+*/
+int aStar(int row, int col, int d, int g, int lastMove) {
+
+    int currNodeG;
+    int currNodeH;
+    int currNodeF;
+    int currCol;
+    int currRow;
+    int oldRow;
+    int oldCol;
+
+
 
     int* current = &visited[row][col];
+
     Nodes++;
+    node openNumNode[62500];
+    node closeNumNode[62500];
+
 
     if (*current == goal) {
 		return 1;
@@ -432,13 +496,53 @@ int aStar(int row, int col, int curr) {
 
 	success = 0;
 
-	currNodeG = abs( oldCol - col ) + abs( start_row - row );
-	currNodeH = abs;
-	currNodeF = ;
+		for( i = 0; i < 4; i++ ) {
+
+		newcol = col;
+		newrow = row;
+
+    switch( i ) {
+   		    case 0: /* left */
+            //if (lastMove != 1) {
+
+			//}
+			break;
+   		    case 1: /* right */
+            //if (lastMove != 0) {
+
+           // }
+			break;
+   		    case 2: /* up */
+            //if (lastMove != 3) {
+
+            //}
+			break;
+   		    case 3: /* down */
+			//if (lastMove != 2) {
+
+			//}
+			break;
+   		    default:
+			printf( "Should never happen!\n" );
+		}
+
+		}
+    //currCol
+
+    row = 6; //used for testing
+    col = 2; //used for testing
+
+	openNumNode[1].gValueNode = abs( start_col - newcol ) + abs( start_row - newrow );
+	openNumNode[1].hValueNode = pow( abs( goal_col - newcol ), 2) + pow( abs( goal_row - newrow ), 2);
+	openNumNode[Nodes].fValueNode = currNodeH + currNodeG;
+
+	success = aStar(newrow, newcol, d, g + 1, currMove);
 
 
+	return( success );
 }
 
+/*
 int manhatDist(int row, int col) {
 
 
@@ -475,7 +579,7 @@ int manhatDist(int row, int col) {
         printf("Error");
         return 0;
         }
-*/
+*/ /*
         manDistNewLeft = abs(( col - 1 ) - goal_col) + abs( row - goal_row); // calculates man distance between each possible move.
         manDistNewRight = abs(( col + 1)  - goal_col) + abs( row - goal_row);
         manDistNewUp = abs( col - goal_col) + abs(( row - 1) - goal_row);
@@ -538,7 +642,7 @@ int manhatDist(int row, int col) {
         }
     }
 }
-
+*/
 void add_crumbs(){
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
@@ -596,7 +700,7 @@ printf("\n\nNew Maze:\n\n");
 print_maze();
 } else if (userInput == 2) {
 	Nodes = 0;
-	for( depth = 1; depth < 100; depth++ )
+	for( depth = 1; depth < 500; depth++ )
    	{
 		//printf( "Depth %2d = ", depth );
 		success = newManhatDist(start_col, start_row, depth, 0, currMove);
@@ -605,17 +709,50 @@ print_maze();
 			break;
 		}
    	}
+} else if (userInput == 3) {
+    Nodes = 0;
+    for ( depth = 1; depth < 500; depth++) {
+
+        node numNode[62500];
+        success = aStar(start_col, start_row, depth, 0, currMove);
+        //printf("(F: %d, G: %d, H: %d) ", numNode[Nodes].fValueNode, numNode[Nodes].gValueNode, numNode[Nodes].hValueNode);
+        if (success == 1) {
+            break;
+        }
+    }
 }
 t = clock() - t; //clock
 double time_taken = ((double)t)/CLOCKS_PER_SEC; //clock
+//--------------------------------
+//debug stats
+    /*
 printf("\nStats:\n\n");
 printf("Program took %f seconds to execute \n", time_taken); //clock
 printf("Program computed %f moves per second.\n", testNum / time_taken); //clock
 printf("It took %d moves!\n", testNum);
 printf("Start is at: (%d, %d)\n", start_col, start_row);
 printf("Goal is at: (%d, %d)\n\n\n", goal_col, goal_row);
-printf("%d, %d", lastX[4], lastY[4]); // used to test that the array worked. It did :)
-
+    */
+//---------------------------------------------------
+//Need to find a way to sent an array of the moves taken by the program
+movesTaken = testNum;
+while (movesTaken > 1) {
+    if (lastX[movesTaken] - lastX[movesTaken - 1] == 1) {
+        //moved right
+        lastMoveTaken[movesTaken] = 1;
+    }else if(lastX[movesTaken] - lastX[movesTaken - 1] == -1) {
+        //moved left
+        lastMoveTaken[movesTaken] = 3;
+    }else if(lastY[movesTaken] - lastY[movesTaken - 1] == 1) {
+        //moved up
+        lastMoveTaken[movesTaken] = 0;
+    }else if(lastY[movesTaken] - lastY[movesTaken - 1] == -1) {
+        //moved down
+        lastMoveTaken[movesTaken] = 2;
+    }
+    printf("(LM: %d, MT: %d) ",lastMoveTaken[movesTaken], movesTaken);
+    movesTaken--;
+    }
 
 return 0;
 }
